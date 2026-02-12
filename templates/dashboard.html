@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ระบบแผนที่มะแขว่น</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; display: flex; height: 100vh; font-family: 'Sarabun', sans-serif; }
+        .sidebar { width: 280px; background: #1b5e20; color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 1000; }
+        .nav-link { color: white; display: block; padding: 12px; text-decoration: none; margin-bottom: 8px; border-radius: 6px; transition: 0.3s; }
+        .nav-link:hover { background: #2e7d32; }
+        .active { background: #2e7d32; border-left: 4px solid #ffc107; }
+        .admin-box { background: rgba(255, 193, 7, 0.1); border: 1px dashed #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        #map { flex-grow: 1; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🌿 ระบบมะแขว่น</h2>
+        <p>ผู้ใช้: <strong>{{ user }}</strong></p>
+        <p>สิทธิ์: <span style="color: #ffc107;">{{ role.upper() }}</span></p>
+        <hr>
+        <a href="/dashboard" class="nav-link active">🗺️ แผนที่พิกัดสำรวจ</a>
+        <a href="/data_table" class="nav-link">📁 คลังข้อมูลภาพถ่าย</a>
+
+        {% if role == 'admin' %}
+        <div class="admin-box">
+            <p style="color: #ffc107; margin-top: 0;">🛠️ ส่วนผู้ดูแลระบบ</p>
+            <a href="#" class="nav-link" style="font-size: 14px;">👥 จัดการสมาชิก</a>
+        </div>
+        {% endif %}
+
+        <a href="/logout" class="nav-link" style="margin-top: 50px; color: #ffab91;">➡️ ออกจากระบบ</a>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ตั้งค่าแผนที่เริ่มต้นที่ ป้ายหน้า ม.พะเยา [19.0308, 99.9263]
+        var map = L.map('map').setView([19.0308, 99.9263], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // หมุดป้ายหน้า ม.พะเยา (จุดอ้างอิง)
+        L.marker([19.0308, 99.9263]).addTo(map)
+            .bindPopup("<b>จุดอ้างอิง:</b> ป้ายหน้ามหาวิทยาลัยพะเยา")
+            .openPopup();
+
+        // ดึงข้อมูลจาก SQLite มาปักหมุด
+        {% for d in data %}
+        L.marker([{{ d.lat }}, {{ d.lng }}]).addTo(map)
+            .bindPopup(`
+                <div style="text-align:center;">
+                    <img src="/static/uploads/{{ d.img_name }}" width="120" style="border-radius:5px;"><br>
+                    <b>ผู้สำรวจ:</b> {{ d.surveyor }}<br>
+                    <b>ความแม่นยำ:</b> +/- {{ d.accuracy }} เมตร<br>
+                    <small>{{ d.timestamp }}</small>
+                </div>
+            `);
+        {% endfor %}
+    </script>
+</body>
+</html>
