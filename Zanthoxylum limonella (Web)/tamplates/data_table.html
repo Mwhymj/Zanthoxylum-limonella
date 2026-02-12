@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>คลังข้อมูลมะแขว่น</title>
+    <style>
+        body { display: flex; margin: 0; font-family: 'Sarabun', sans-serif; background: #f9f9f9; }
+        .sidebar { width: 280px; background: #1b5e20; color: white; padding: 20px; min-height: 100vh; }
+        .main { flex-grow: 1; padding: 40px; }
+        .table-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f1f8e9; color: #1b5e20; }
+        .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; text-decoration: none; }
+        .btn-del { background: #ff5252; color: white; }
+        .btn-view { background: #448aff; color: white; }
+        .badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>🌿 ระบบมะแขว่น</h3>
+        <p>สิทธิ์: <b>{{ role.upper() }}</b></p>
+        <hr>
+        <a href="/dashboard" style="color:white; text-decoration:none; display:block; padding:10px;">🗺️ กลับไปหน้าแผนที่</a>
+    </div>
+
+    <div class="main">
+        <h2>คลังข้อมูลพิกัดและภาพถ่ายมะแขว่น</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>รูปภาพ</th>
+                        <th>พิกัดสำรวจ</th>
+                        <th>ความแม่นยำ (%)</th>
+                        <th>ผู้สำรวจ / เวลา</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in data %}
+                    <tr>
+                        <td>
+                            <a href="/static/uploads/{{ d.img_name }}" target="_blank">
+                                <img src="/static/uploads/{{ d.img_name }}" width="80" style="border-radius:6px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+                            </a>
+                        </td>
+                        <td>{{ d.lat }}, {{ d.lng }}</td>
+                        <td><span class="badge">{{ d.accuracy }} %</span></td>
+                        <td>
+                            <strong>{{ d.surveyor }}</strong><br>
+                            <small style="color: #888;">{{ d.timestamp }}</small>
+                        </td>
+                        <td>
+                            {% if role == 'admin' %}
+                                <button class="btn btn-del">🗑️ ลบ</button>
+                                <button class="btn btn-view">✏️ แก้ไข</button>
+                            {% else %}
+                                <button class="btn btn-view">🔍 รายละเอียด</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not data %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#999; padding:50px;">ยังไม่มีข้อมูลการสำรวจในระบบ</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
