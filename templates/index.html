@@ -61,61 +61,22 @@
         .info-card img { width: 100%; height: 240px; object-fit: cover; }
         .info-content { padding: 25px; }
 
-        /* --- Stats Bar Style --- */
-        .stats-section {
-            background: #fff;
-            padding: 60px 20px;
-            border-top: 1px solid #eee;
-        }
-        .stats-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            text-align: center;
-        }
-        .stat-card {
-            padding: 20px;
-            transition: 0.3s;
-        }
-        .stat-card i {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: block;
-        }
-        .stat-number {
-            font-size: 2.8rem;
-            font-weight: bold;
-            color: #222;
-            line-height: 1;
-        }
-        .stat-label {
-            font-family: 'Sarabun';
-            color: #666;
-            font-size: 1rem;
-            margin-top: 10px;
-            display: block;
-        }
-        .online-dot {
-            height: 12px;
-            width: 12px;
-            background-color: #4caf50;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-            animation: pulse 1.5s infinite;
-        }
+        /* Stats Bar Style */
+        .stats-section { background: #fff; padding: 60px 20px; border-top: 1px solid #eee; }
+        .stats-container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center; }
+        .stat-card { padding: 20px; transition: 0.3s; }
+        .stat-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: block; }
+        .stat-number { font-size: 2.8rem; font-weight: bold; color: #222; line-height: 1; }
+        .stat-label { font-family: 'Sarabun'; color: #666; font-size: 1rem; margin-top: 10px; display: block; }
+        .online-dot { height: 12px; width: 12px; background-color: #4caf50; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 1.5s infinite; }
+        
         @keyframes pulse {
             0% { transform: scale(0.95); opacity: 0.7; }
             70% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(0.95); opacity: 0.7; }
         }
 
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.2rem; }
-        }
+        @media (max-width: 768px) { .hero h1 { font-size: 2.2rem; } }
     </style>
 </head>
 <body>
@@ -140,7 +101,7 @@
         
         <div class="grid-container">
             <div class="info-card">
-                <img src="/static/imges/มะแขว่น.jpg" alt="สรรพคุณ" onerror="this.src='https://image.makewebeasy.net/makeweb/0/fK7vD2WfK/DefaultData/makhean_1.jpg'">
+                <img src="{{ url_for('static', filename='images/makhaen.jpg') }}" alt="สรรพคุณ" onerror="this.src='https://image.makewebeasy.net/makeweb/0/fK7vD2WfK/DefaultData/makhean_1.jpg'">
                 <div class="info-content">
                     <h3>✨ ประโยชน์และสรรพคุณ</h3>
                     <p>มะแขว่นมีฤทธิ์เผ็ดร้อน เอกลักษณ์คือความหอมซ่า ช่วยขับลม แก้ท้องอืด และมีสารสกัดที่ใช้ลดความดันโลหิต บำรุงหัวใจได้อย่างดีเยี่ยม</p>
@@ -148,7 +109,7 @@
             </div>
 
             <div class="info-card">
-                <img src="/static/imges/ลาบ.jpg" alt="เมนูอาหาร" onerror="this.src='https://f.ptcdn.info/648/055/000/p2m0f0p1z1X0T1p1N0-o.jpg'">
+                <img src="{{ url_for('static', filename='images/larb.jpg') }}" alt="เมนูอาหาร" onerror="this.src='https://f.ptcdn.info/648/055/000/p2m0f0p1z1X0T1p1N0-o.jpg'">
                 <div class="info-content">
                     <h3>🍲 วัฒนธรรมอาหารเหนือ</h3>
                     <p>หัวใจสำคัญของ "ลาบคั่ว" และ "แกงแค" เครื่องเทศที่ทำให้รสชาติอาหารเหนือมีมิติ เผ็ดปร่าติดลิ้น คล้ายหมาล่าแต่หอมนวลกว่า</p>
@@ -156,7 +117,7 @@
             </div>
 
             <div class="info-card">
-                <img src="/static/imges/ปลูก.jpg" alt="การปลูก" onerror="this.src='https://puechkaset.com/wp-content/uploads/2015/12/%E0%B8%A1%E0%B8%B0%E0%B9%81%E0%B8%82%E0%B9%87%E0%B8%A7%E0%B9%88%E0%B8%993.jpg'">
+                <img src="{{ url_for('static', filename='images/planting.jpg') }}" alt="การปลูก" onerror="this.src='https://puechkaset.com/wp-content/uploads/2015/12/%E0%B8%A1%E0%B8%B0%E0%B9%81%E0%B8%82%E0%B9%87%E0%B8%A7%E0%B9%88%E0%B8%993.jpg'">
                 <div class="info-content">
                     <h3>🌱 พื้นที่ปลูกที่เหมาะสม</h3>
                     <p>เติบโตได้ดีในพื้นที่ภูเขาสูง 600 เมตรขึ้นไป ชอบดินร่วนซุยที่มีการระบายน้ำดี พบมากในแถบ อ.ปง และ อ.เชียงคำ จ.พะเยา</p>
@@ -191,32 +152,40 @@
     </main>
 
     <script>
-        // ระบบค้นหา
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('search-results');
 
-        searchInput.addEventListener('input', async (e) => {
-            const query = e.target.value;
-            if (query.length < 2) {
+        // ข้อมูลจำลองสำหรับระบบค้นหา (ในกรณีที่ยังไม่ได้ทำ Search API ใน app.py)
+        const mockData = [
+            { title: "สรรพคุณมะแขว่น", desc: "แก้ท้องอืด ขับลม บำรุงหัวใจ", link: "#" },
+            { title: "วิธีการปลูก", desc: "พื้นที่สูง 600 เมตร ดินร่วนซุย", link: "#" },
+            { title: "เมนูลาบคั่ว", desc: "การใช้มะแขว่นในอาหารเหนือ", link: "#" }
+        ];
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            if (query.length < 1) {
                 searchResults.style.display = 'none';
                 return;
             }
-            try {
-                const response = await fetch(`/api/search?q=${query}`);
-                const data = await response.json();
-                if (data.length > 0) {
-                    searchResults.innerHTML = data.map(item => `
-                        <div class="search-item" onclick="window.location.href='${item.link}'">
-                            <h4>${item.title}</h4>
-                            <p>${item.desc}</p>
-                        </div>
-                    `).join('');
-                    searchResults.style.display = 'block';
-                } else {
-                    searchResults.innerHTML = '<div class="search-item">ไม่มีข้อมูลที่ตรงกัน</div>';
-                    searchResults.style.display = 'block';
-                }
-            } catch (err) { console.error('Search error:', err); }
+
+            const filtered = mockData.filter(item => 
+                item.title.toLowerCase().includes(query) || 
+                item.desc.toLowerCase().includes(query)
+            );
+
+            if (filtered.length > 0) {
+                searchResults.innerHTML = filtered.map(item => `
+                    <div class="search-item" onclick="location.href='${item.link}'">
+                        <h4>${item.title}</h4>
+                        <p>${item.desc}</p>
+                    </div>
+                `).join('');
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.innerHTML = '<div class="search-item">ไม่พบข้อมูล</div>';
+                searchResults.style.display = 'block';
+            }
         });
 
         document.addEventListener('click', (e) => {
