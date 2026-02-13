@@ -2,102 +2,129 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบมะแขว่น - แผนที่พิกัดสำรวจ</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&family=Sarabun:wght@300;400&display=swap" rel="stylesheet">
     
     <style>
-        body { display: flex; margin: 0; font-family: 'Sarabun', sans-serif; background: #f4f7f6; overflow: hidden; }
+        :root { --primary: #1b5e20; --primary-dark: #0d3210; --accent: #ffeb3b; }
+        body { display: flex; margin: 0; font-family: 'Kanit', sans-serif; background: #f4f7f6; overflow: hidden; }
         
         /* Sidebar */
-        .sidebar { width: 260px; background: #1b5e20; color: white; padding: 20px; min-height: 100vh; position: fixed; z-index: 1000; display: flex; flex-direction: column; }
-        .sidebar h3 { margin-bottom: 5px; font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .sidebar p { font-size: 14px; margin-bottom: 20px; opacity: 0.9; line-height: 1.6; }
+        .sidebar { width: 280px; background: var(--primary-dark); color: white; padding: 25px; min-height: 100vh; position: fixed; z-index: 1000; display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+        .sidebar h3 { margin-bottom: 5px; font-size: 22px; display: flex; align-items: center; gap: 10px; color: var(--accent); }
+        .sidebar p { font-size: 14px; margin-bottom: 20px; opacity: 0.8; font-family: 'Sarabun'; line-height: 1.4; }
         
         .nav-menu { list-style: none; padding: 0; flex-grow: 1; }
-        .nav-menu li { margin-bottom: 8px; }
-        .nav-menu a { color: white; text-decoration: none; display: block; padding: 12px 15px; border-radius: 8px; transition: 0.3s; font-size: 14px; cursor: pointer; }
-        .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.2); font-weight: bold; }
-        .nav-menu i { width: 20px; margin-right: 10px; }
+        .nav-menu li { margin-bottom: 10px; }
+        .nav-menu a { color: rgba(255,255,255,0.8); text-decoration: none; display: block; padding: 12px 18px; border-radius: 12px; transition: 0.3s; font-size: 15px; }
+        .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.1); color: white; font-weight: 500; }
+        .nav-menu i { width: 24px; margin-right: 10px; font-size: 18px; }
         
-        /* ปุ่มส่งรายงาน (เฉพาะ User/Admin ไม่ใช่ Guest) */
-        .btn-report { background: #ffeb3b; color: #1b5e20 !important; font-weight: bold; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .btn-report:hover { background: #fff176 !important; transform: translateY(-2px); }
+        /* ปุ่มส่งรายงาน (แสดงเฉพาะสมาชิก) */
+        .btn-report { background: var(--accent) !important; color: var(--primary-dark) !important; font-weight: bold !important; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .btn-report:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
 
         /* พื้นที่แผนที่ */
-        .main { flex-grow: 1; margin-left: 260px; height: 100vh; width: calc(100% - 260px); position: relative; }
-        #map { height: 100%; width: 100%; }
+        .main { flex-grow: 1; margin-left: 280px; height: 100vh; width: calc(100% - 280px); }
+        #map { height: 100%; width: 100%; z-index: 1; }
         
         /* Modal Form */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 15px; width: 90%; max-width: 450px; position: relative; color: #333; }
-        .modal-content h3 { margin-top: 0; color: #1b5e20; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
+        .modal-content { background: white; margin: 50px auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; position: relative; color: #333; }
+        .modal-content h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-submit { width: 100%; background: #1b5e20; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; box-sizing: border-box; }
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn-submit:hover { background: #2e7d32; }
         
-        .logout-container { margin-top: auto; padding-bottom: 20px; }
-        .logout-btn { color: #ffcdd2; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 1px solid rgba(255,205,210,0.3); border-radius: 8px; transition: 0.3s; }
-        .logout-btn:hover { background: #b71c1c; color: white; border-color: #b71c1c; }
+        .logout-container { margin-top: auto; padding-top: 20px; }
+        .logout-btn { color: #ffab91; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; transition: 0.3s; }
+        .logout-btn:hover { background: #d84315; color: white; }
         
-        .badge-ai { background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+        .badge-ai { background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 15px 10px; }
+            .sidebar h3, .sidebar p, .sidebar span, .nav-menu a span, .logout-btn span { display: none; }
+            .main { margin-left: 70px; width: calc(100% - 70px); }
+            .nav-menu i { margin-right: 0; font-size: 20px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h3><i class="fa-solid fa-leaf"></i> ระบบมะแขว่น</h3>
-        <p>ผู้ใช้: <b>{{ session.get('user', 'ผู้เยี่ยมชม') }}</b><br>สิทธิ์: <span style="color: #ffeb3b;">{{ session.get('role', 'GUEST').upper() }}</span></p>
-        <hr style="opacity: 0.2; margin-bottom: 20px; width: 100%;">
+        <h3><i class="fa-solid fa-seedling"></i> <span>มะแขว่นพะเยา</span></h3>
+        
+        <p>
+            {% if is_guest %}
+                <i class="fa-solid fa-eye"></i> <span>โหมดผู้เยี่ยมชม</span>
+            {% else %}
+                <i class="fa-solid fa-user-check"></i> <span>ผู้ใช้: <b>{{ user }}</b></span><br>
+                <small>สิทธิ์: <span style="color: var(--accent);">{{ role.upper() }}</span></small>
+            {% endif %}
+        </p>
+
+        <hr style="opacity: 0.1; margin-bottom: 20px; width: 100%;">
         
         <ul class="nav-menu">
             {% if not is_guest %}
-            <li><a onclick="openModal()" class="btn-report"><i class="fa-solid fa-circle-plus"></i> ส่งรายงานสำรวจใหม่</a></li>
+            <li>
+                <a onclick="openModal()" class="btn-report">
+                    <i class="fa-solid fa-circle-plus"></i> <span>ส่งรายงานสำรวจใหม่</span>
+                </a>
+            </li>
             {% endif %}
 
-            <li><a href="/dashboard" class="active"><i class="fa-solid fa-map-location-dot"></i> แผนที่พิกัดสำรวจ</a></li>
+            <li><a href="/dashboard" class="active"><i class="fa-solid fa-map-location-dot"></i> <span>แผนที่พิกัดสำรวจ</span></a></li>
             
             {% if not is_guest %}
-            <li><a href="/admin/reports"><i class="fa-solid fa-folder-open"></i> คลังข้อมูลภาพถ่าย</a></li>
+            <li><a href="/admin/reports"><i class="fa-solid fa-database"></i> <span>คลังข้อมูลของฉัน</span></a></li>
             {% endif %}
             
-            <li><a href="/"><i class="fa-solid fa-house"></i> กลับหน้าหลัก</a></li>
+            <li><a href="/"><i class="fa-solid fa-house"></i> <span>กลับหน้าหลัก</span></a></li>
 
-            {% if session.get('role') == 'admin' %}
-            <li style="margin-top: 25px; margin-bottom: 10px; padding-left: 15px; color: #81c784; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">ส่วนผู้ดูแลระบบ</li>
-            <li><a href="/admin/users"><i class="fa-solid fa-users-gear"></i> จัดการสมาชิก</a></li>
-            <li><a href="/admin/reports"><i class="fa-solid fa-clipboard-check"></i> ตรวจสอบรายงาน</a></li>
+            {% if role == 'admin' and not is_guest %}
+            <li style="margin-top: 25px; margin-bottom: 10px; color: #81c784; font-size: 11px; font-weight: bold; text-transform: uppercase;">Admin Menu</li>
+            <li><a href="/admin/users"><i class="fa-solid fa-users-gear"></i> <span>จัดการสมาชิก</span></a></li>
             {% endif %}
         </ul>
 
         <div class="logout-container">
-            <a href="/logout" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> {% if is_guest %}กลับหน้ารับชม{% else %}ออกจากระบบ{% endif %}</a>
+            <a href="/logout" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> 
+                <span>{% if is_guest %}ออกจากหน้าสำรวจ{% else %}ออกจากระบบ{% endif %}</span>
+            </a>
         </div>
     </div>
 
+    {% if not is_guest %}
     <div id="reportModal" class="modal">
         <div class="modal-content">
-            <span style="position:absolute; right:20px; cursor:pointer; font-size:24px;" onclick="closeModal()">&times;</span>
-            <h3><i class="fa-solid fa-camera"></i> ส่งรายงานพิกัดสำรวจ</h3>
+            <span style="position:absolute; right:25px; top:20px; cursor:pointer; font-size:28px;" onclick="closeModal()">&times;</span>
+            <h3><i class="fa-solid fa-camera"></i> ส่งรายงานสำรวจ</h3>
             <form id="uploadForm">
                 <div class="form-group">
-                    <label>เลือกรูปภาพต้นมะแขว่น</label>
+                    <label>อัปโหลดรูปภาพต้นมะแขว่น</label>
                     <input type="file" id="imageInput" accept="image/*" required>
                 </div>
                 <div class="form-group">
-                    <label>พิกัดละติจูด (Latitude)</label>
-                    <input type="text" id="latInput" readonly required>
+                    <label>พิกัดละติจูด (Lat)</label>
+                    <input type="text" id="latInput" readonly required placeholder="กำลังดึงพิกัด...">
                 </div>
                 <div class="form-group">
-                    <label>พิกัดลองจิจูด (Longitude)</label>
-                    <input type="text" id="lngInput" readonly required>
+                    <label>พิกัดลองจิจูด (Lng)</label>
+                    <input type="text" id="lngInput" readonly required placeholder="กำลังดึงพิกัด...">
                 </div>
-                <p style="font-size: 12px; color: #666;"><i class="fa-solid fa-location-crosshairs"></i> พิกัดจะถูกดึงโดยอัตโนมัติจากตำแหน่งของคุณ</p>
-                <button type="submit" class="btn-submit">ยืนยันการส่งข้อมูล</button>
+                <button type="submit" class="btn-submit">ยืนยันและส่งข้อมูล AI</button>
             </form>
         </div>
     </div>
+    {% endif %}
 
     <div class="main">
         <div id="map"></div>
@@ -105,46 +132,51 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // --- ระบบแผนที่เดิมของนาย ---
-        var startLat = parseFloat("{{ target_lat }}") || 19.0308;
-        var startLng = parseFloat("{{ target_lng }}") || 99.9263;
-        var zoomLevel = "{{ target_lat }}" ? 18 : 15;
-        var map = L.map('map').setView([startLat, startLng], zoomLevel);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        // ตั้งค่าแผนที่
+        var map = L.map('map').setView([19.0308, 99.9263], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
 
+        // ดึงข้อมูลพิกัดมาโชว์บนแผนที่
         {% if data %}
             {% for d in data %}
             (function() {
-                var lat = parseFloat("{{ d.lat }}");
-                var lng = parseFloat("{{ d.lng }}");
-                if (!isNaN(lat) && !isNaN(lng)) {
-                    var point = L.circleMarker([lat, lng], {
-                        radius: 10,
-                        fillColor: "{{ '#1b5e20' if d.prediction == 'Zanthoxylum' or d.prediction == 'มะแขว่น' else '#e65100' }}",
-                        color: "#ffffff", weight: 2, fillOpacity: 0.9
-                    }).addTo(map);
-                    
-                    var content = `<div style="text-align:center; min-width:160px;">
-                        <img src="/static/uploads/{{ d.img_name }}" width="100%" style="border-radius:8px; margin-bottom:8px;" onerror="this.src='https://via.placeholder.com/160x120'">
-                        <br><b>ผล AI:</b> <span class="badge-ai">{{ d.prediction }}</span><br>
-                        <small style="color:#2e7d32;">ความมั่นใจ: {{ "%.2f"|format(d.confidence|float) }}%</small>
-                    </div>`;
-                    point.bindPopup(content);
-                }
+                var lat = {{ d.lat }};
+                var lng = {{ d.lng }};
+                var color = "{{ '#1b5e20' if d.prediction in ['Zanthoxylum', 'มะแขว่น'] else '#e65100' }}";
+                
+                var marker = L.circleMarker([lat, lng], {
+                    radius: 10,
+                    fillColor: color,
+                    color: "#fff",
+                    weight: 2,
+                    fillOpacity: 0.9
+                }).addTo(map);
+
+                var popupContent = `
+                    <div style="text-align:center; width:180px; font-family:'Kanit';">
+                        <img src="/static/uploads/{{ d.img_name }}" width="100%" style="border-radius:10px; margin-bottom:8px;">
+                        <div style="margin-bottom:5px;"><b>ผลวิเคราะห์:</b> <span class="badge-ai">{{ d.prediction }}</span></div>
+                        <div style="font-size:12px; color:#666;">ความมั่นใจ: {{ "%.2f"|format(d.confidence|float) }}%</div>
+                        <div style="font-size:11px; color:#999; margin-top:5px;">โดย: {{ d.surveyor }}</div>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
             })();
             {% endfor %}
         {% endif %}
 
-        // --- ระบบเปิด Modal และขอพิกัด ---
+        // ฟังก์ชัน Modal
         function openModal() {
             document.getElementById('reportModal').style.display = 'block';
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    document.getElementById('latInput').value = position.coords.latitude;
-                    document.getElementById('lngInput').value = position.coords.longitude;
-                }, function() {
-                    alert("กรุณาเปิด GPS เพื่อส่งพิกัด");
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    document.getElementById('latInput').value = pos.coords.latitude.toFixed(6);
+                    document.getElementById('lngInput').value = pos.coords.longitude.toFixed(6);
                 });
+            } else {
+                alert("เบราว์เซอร์ของคุณไม่รองรับการดึงพิกัด GPS");
             }
         }
 
@@ -152,7 +184,7 @@
             document.getElementById('reportModal').style.display = 'none';
         }
 
-        // --- ระบบส่งข้อมูล API ---
+        {% if not is_guest %}
         document.getElementById('uploadForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData();
@@ -160,15 +192,16 @@
             formData.append('lat', document.getElementById('latInput').value);
             formData.append('lng', document.getElementById('lngInput').value);
 
-            const response = await fetch('/api/upload', { method: 'POST', body: formData });
-            const result = await response.json();
-            if (result.status === 'success') {
-                alert('ส่งรายงานสำเร็จ! ข้อมูลจะปรากฏบนแผนที่หลังรีเฟรช');
-                location.reload();
-            } else {
-                alert('Error: ' + result.message);
-            }
+            try {
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert('ส่งข้อมูลสำเร็จ! ระบบ AI กำลังประมวลผล');
+                    location.reload();
+                }
+            } catch (err) { alert('เกิดข้อผิดพลาดในการส่งข้อมูล'); }
         };
+        {% endif %}
     </script>
 </body>
 </html>
