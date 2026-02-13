@@ -11,7 +11,6 @@
         :root { --primary: #1b5e20; --primary-light: #2e7d32; --secondary: #ffc107; --bg: #f8faf8; }
         body { font-family: 'Kanit', sans-serif; margin: 0; background: var(--bg); color: #333; scroll-behavior: smooth; }
         
-        /* Hero Section */
         .hero { 
             background: linear-gradient(rgba(27, 94, 32, 0.8), rgba(27, 94, 32, 0.8)), 
                         url('https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?auto=format&fit=crop&w=1350&q=80');
@@ -21,33 +20,25 @@
         .hero h1 { font-size: 3.5rem; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 30px; font-family: 'Sarabun'; }
         
-        /* Search System */
         .search-container { position: relative; max-width: 600px; margin: 0 auto; }
         .search-bar { 
             padding: 18px 30px; width: 100%; border-radius: 50px; border: none; 
             font-size: 18px; outline: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             transition: 0.3s; box-sizing: border-box;
         }
-        .search-bar:focus { transform: scale(1.02); }
         
         #search-results {
             position: absolute; top: 110%; left: 0; right: 0; background: white;
             border-radius: 15px; text-align: left; color: #333; z-index: 100;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2); display: none; overflow: hidden;
         }
-        .search-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; }
-        .search-item:hover { background: #f0f4f0; }
-        .search-item h4 { margin: 0; color: var(--primary); }
-        .search-item p { margin: 5px 0 0; font-size: 13px; color: #666; font-family: 'Sarabun'; }
+        .search-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; }
 
-        /* Buttons */
         .btn-group { margin-top: 40px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
         .btn { padding: 15px 40px; text-decoration: none; border-radius: 50px; font-weight: bold; transition: 0.4s; display: flex; align-items: center; gap: 10px; }
         .btn-login { background: var(--secondary); color: #1b5e20; }
         .btn-map-guest { background: white; color: var(--primary); }
-        .btn:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); opacity: 0.9; }
 
-        /* Knowledge Section */
         .section-title { text-align: center; margin: 60px 0 40px; color: var(--primary); font-size: 2rem; }
         .grid-container { 
             display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
@@ -57,17 +48,14 @@
             background: white; border-radius: 25px; overflow: hidden; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.05); transition: 0.4s; border: 1px solid rgba(0,0,0,0.03);
         }
-        .info-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .info-card img { width: 100%; height: 240px; object-fit: cover; }
         .info-content { padding: 25px; }
 
-        /* Stats Bar Style */
         .stats-section { background: #fff; padding: 60px 20px; border-top: 1px solid #eee; }
         .stats-container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center; }
-        .stat-card { padding: 20px; transition: 0.3s; }
         .stat-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: block; }
-        .stat-number { font-size: 2.8rem; font-weight: bold; color: #222; line-height: 1; }
-        .stat-label { font-family: 'Sarabun'; color: #666; font-size: 1rem; margin-top: 10px; display: block; }
+        .stat-number { font-size: 2.8rem; font-weight: bold; color: #222; }
+        .stat-label { font-family: 'Sarabun'; color: #666; display: block; margin-top: 10px; }
         .online-dot { height: 12px; width: 12px; background-color: #4caf50; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 1.5s infinite; }
         
         @keyframes pulse {
@@ -75,8 +63,6 @@
             70% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(0.95); opacity: 0.7; }
         }
-
-        @media (max-width: 768px) { .hero h1 { font-size: 2.2rem; } }
     </style>
 </head>
 <body>
@@ -84,12 +70,10 @@
     <header class="hero">
         <h1>🌿 นวัตกรรมมะแขว่นพะเยา</h1>
         <p>ยกระดับสมุนไพรท้องถิ่นด้วยระบบฐานข้อมูลดิจิทัลและการจำแนก AI</p>
-        
         <div class="search-container">
             <input type="text" id="searchInput" class="search-bar" placeholder="🔍 ค้นหาสรรพคุณ, วิธีปลูก, เมนูอาหาร...">
             <div id="search-results"></div>
         </div>
-
         <div class="btn-group">
             <a href="/login" class="btn btn-login"><i class="fas fa-id-badge"></i> เข้าสู่ระบบเจ้าหน้าที่</a>
             <a href="/dashboard?view_only=true" class="btn btn-map-guest"><i class="fas fa-globe-asia"></i> สำรวจแผนที่พิกัด</a>
@@ -98,26 +82,23 @@
 
     <main class="content">
         <h2 class="section-title">คลังความรู้มะแขว่นอัจฉริยะ</h2>
-        
         <div class="grid-container">
             <div class="info-card">
-                <img src="{{ url_for('static', filename='imges/มะแขว่น.jpg') }}" alt="สรรพคุณ" onerror="this.src='https://image.makewebeasy.net/makeweb/0/fK7vD2WfK/DefaultData/makhean_1.jpg'">
+                <img src="/static/imges/มะแขว่น.jpg" alt="สรรพคุณ" onerror="this.src='https://image.makewebeasy.net/makeweb/0/fK7vD2WfK/DefaultData/makhean_1.jpg'">
                 <div class="info-content">
                     <h3>✨ ประโยชน์และสรรพคุณ</h3>
                     <p>มะแขว่นมีฤทธิ์เผ็ดร้อน เอกลักษณ์คือความหอมซ่า ช่วยขับลม แก้ท้องอืด และมีสารสกัดที่ใช้ลดความดันโลหิต บำรุงหัวใจได้อย่างดีเยี่ยม</p>
                 </div>
             </div>
-
             <div class="info-card">
-                <img src="{{ url_for('static', filename='imges/ลาบ.jpg') }}" alt="เมนูอาหาร" onerror="this.src='https://f.ptcdn.info/648/055/000/p2m0f0p1z1X0T1p1N0-o.jpg'">
+                <img src="/static/imges/ลาบ.jpg" alt="เมนูอาหาร" onerror="this.src='https://f.ptcdn.info/648/055/000/p2m0f0p1z1X0T1p1N0-o.jpg'">
                 <div class="info-content">
                     <h3>🍲 วัฒนธรรมอาหารเหนือ</h3>
                     <p>หัวใจสำคัญของ "ลาบคั่ว" และ "แกงแค" เครื่องเทศที่ทำให้รสชาติอาหารเหนือมีมิติ เผ็ดปร่าติดลิ้น คล้ายหมาล่าแต่หอมนวลกว่า</p>
                 </div>
             </div>
-
             <div class="info-card">
-                <img src="{{ url_for('static', filename='imges/ปลูก.jpg') }}" alt="การปลูก" onerror="this.src='https://puechkaset.com/wp-content/uploads/2015/12/%E0%B8%A1%E0%B8%B0%E0%B9%81%E0%B8%82%E0%B9%87%E0%B8%A7%E0%B9%88%E0%B8%993.jpg'">
+                <img src="/static/imges/ปลูก.jpg" alt="การปลูก" onerror="this.src='https://puechkaset.com/wp-content/uploads/2015/12/%E0%B8%A1%E0%B8%B0%E0%B9%81%E0%B8%82%E0%B9%87%E0%B8%A7%E0%B9%88%E0%B8%993.jpg'">
                 <div class="info-content">
                     <h3>🌱 พื้นที่ปลูกที่เหมาะสม</h3>
                     <p>เติบโตได้ดีในพื้นที่ภูเขาสูง 600 เมตรขึ้นไป ชอบดินร่วนซุยที่มีการระบายน้ำดี พบมากในแถบ อ.ปง และ อ.เชียงคำ จ.พะเยา</p>
@@ -129,22 +110,22 @@
             <div class="stats-container">
                 <div class="stat-card">
                     <i class="fas fa-images"></i>
-                    <span class="stat-number">{{ total_images }}</span>
+                    <span class="stat-number">{{ total_images if total_images else 0 }}</span>
                     <span class="stat-label">รูปภาพในฐานข้อมูล</span>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-map-marked-alt"></i>
-                    <span class="stat-number">{{ total_markers }}</span>
+                    <span class="stat-number">{{ total_markers if total_markers else 0 }}</span>
                     <span class="stat-label">หมุดบนแผนที่</span>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-user-friends"></i>
-                    <span class="stat-number">{{ total_users }}</span>
+                    <span class="stat-number">{{ total_users if total_users else 0 }}</span>
                     <span class="stat-label">สมาชิกทั้งหมด</span>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-signal"></i>
-                    <span class="stat-number"><span class="online-dot"></span>{{ online_users }}</span>
+                    <span class="stat-number"><span class="online-dot"></span>{{ online_users if online_users else 1 }}</span>
                     <span class="stat-label">กำลังออนไลน์</span>
                 </div>
             </div>
@@ -152,21 +133,16 @@
     </main>
 
     <script>
+        // ระบบค้นหา
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('search-results');
 
-        // ระบบค้นหาจริง เชื่อมต่อกับ API /api/search
         searchInput.addEventListener('input', async (e) => {
             const query = e.target.value;
-            if (query.length < 1) {
-                searchResults.style.display = 'none';
-                return;
-            }
-
+            if (query.length < 1) { searchResults.style.display = 'none'; return; }
             try {
                 const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
                 const data = await response.json();
-
                 if (data.length > 0) {
                     searchResults.innerHTML = data.map(item => `
                         <div class="search-item" onclick="location.href='${item.link}'">
@@ -175,20 +151,8 @@
                         </div>
                     `).join('');
                     searchResults.style.display = 'block';
-                } else {
-                    searchResults.innerHTML = '<div class="search-item">ไม่พบข้อมูล</div>';
-                    searchResults.style.display = 'block';
                 }
-            } catch (err) {
-                console.error('Search error:', err);
-                // แสดงข้อมูลสำรองถ้า API ยังไม่พร้อม
-                searchResults.innerHTML = '<div class="search-item">กำลังเตรียมระบบค้นหา...</div>';
-                searchResults.style.display = 'block';
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target)) { searchResults.style.display = 'none'; }
+            } catch (err) { console.error(err); }
         });
     </script>
 </body>
