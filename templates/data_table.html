@@ -2,74 +2,180 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>คลังข้อมูลมะแขว่น</title>
+    <title>คลังข้อมูลมะแขว่น - ระบบจัดการข้อมูล</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        body { display: flex; margin: 0; font-family: 'Sarabun', sans-serif; background: #f9f9f9; }
-        .sidebar { width: 280px; background: #1b5e20; color: white; padding: 20px; min-height: 100vh; }
-        .main { flex-grow: 1; padding: 40px; }
-        .table-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f1f8e9; color: #1b5e20; }
-        .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; text-decoration: none; }
+        body { display: flex; margin: 0; font-family: 'Sarabun', sans-serif; background: #f4f7f6; }
+        
+        /* Sidebar สไตล์เดียวกับ Dashboard */
+        .sidebar { width: 260px; background: #1b5e20; color: white; padding: 20px; min-height: 100vh; position: fixed; display: flex; flex-direction: column; z-index: 1000; }
+        .sidebar h3 { font-size: 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .sidebar p { font-size: 14px; opacity: 0.9; margin-bottom: 20px; }
+        
+        .nav-menu { list-style: none; padding: 0; flex-grow: 1; }
+        .nav-menu a { color: white; text-decoration: none; display: block; padding: 12px 15px; border-radius: 8px; transition: 0.3s; font-size: 14px; margin-bottom: 5px; }
+        .nav-menu a:hover { background: rgba(255,255,255,0.1); }
+        .nav-menu a.active { background: rgba(255,255,255,0.2); font-weight: bold; }
+        
+        /* Main Content */
+        .main { flex-grow: 1; padding: 30px; margin-left: 260px; width: calc(100% - 260px); }
+        .table-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        h2 { color: #1b5e20; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Elements */
+        .btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; margin: 2px; transition: 0.3s; }
         .btn-del { background: #ff5252; color: white; }
-        .btn-view { background: #448aff; color: white; }
-        .badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .btn-del:hover { background: #b71c1c; }
+        .btn-map { background: #4caf50; color: white; }
+        .btn-map:hover { background: #2e7d32; }
+        
+        .btn-excel { background: #2e7d32 !important; color: white !important; border: none !important; margin-bottom: 15px !important; border-radius: 5px !important; }
+        .btn-csv { background: #546e7a !important; color: white !important; border: none !important; margin-bottom: 15px !important; border-radius: 5px !important; }
+        
+        .badge-ai { padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 11px; }
+        .bg-zantho { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
+        .bg-other { background: #fff3e0; color: #ef6c00; border: 1px solid #ef6c00; }
+        
+        .logout-btn { color: #ffcdd2; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 1px solid rgba(255,205,210,0.3); border-radius: 8px; transition: 0.3s; margin-top: auto; }
+        .logout-btn:hover { background: #b71c1c; color: white; }
+
+        table.dataTable img { border-radius: 8px; cursor: pointer; transition: 0.3s; object-fit: cover; border: 1px solid #eee; }
+        table.dataTable img:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h3>🌿 ระบบมะแขว่น</h3>
-        <p>สิทธิ์: <b>{{ role.upper() }}</b></p>
-        <hr>
-        <a href="/dashboard" style="color:white; text-decoration:none; display:block; padding:10px;">🗺️ กลับไปหน้าแผนที่</a>
+        <h3><i class="fa-solid fa-leaf"></i> ระบบมะแขว่น</h3>
+        <p>ผู้ใช้: <b>{{ session.get('user', 'Admin') }}</b><br>สิทธิ์: <span style="color: #ffeb3b;">{{ role.upper() }}</span></p>
+        <hr style="opacity: 0.2; width: 100%; margin-bottom: 20px;">
+        
+        <nav class="nav-menu">
+            <a href="/dashboard"><i class="fa-solid fa-map-location-dot"></i> หน้าแผนที่รวม</a>
+            <a href="/data_table" class="active"><i class="fa-solid fa-folder-open"></i> คลังข้อมูลภาพถ่าย</a>
+            <a href="/"><i class="fa-solid fa-house"></i> กลับหน้าหลัก</a>
+        </nav>
+
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ</a>
     </div>
 
     <div class="main">
-        <h2>คลังข้อมูลพิกัดและภาพถ่ายมะแขว่น</h2>
+        <h2><i class="fa-solid fa-database"></i> คลังข้อมูลและการวิเคราะห์ AI</h2>
+        
         <div class="table-container">
-            <table>
+            <table id="makhaenTable" class="display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>รูปภาพ</th>
-                        <th>พิกัดสำรวจ</th>
-                        <th>ความแม่นยำ (%)</th>
-                        <th>ผู้สำรวจ / เวลา</th>
+                        <th>ผลวิเคราะห์ (AI)</th>
+                        <th>ความมั่นใจ</th>
+                        <th>พิกัด (Lat, Lng)</th>
+                        <th>ผู้สำรวจ / วันเวลา</th>
                         <th>จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for d in data %}
-                    <tr>
+                    <tr id="row-{{ d.id }}">
                         <td>
                             <a href="/static/uploads/{{ d.img_name }}" target="_blank">
-                                <img src="/static/uploads/{{ d.img_name }}" width="80" style="border-radius:6px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+                                <img src="/static/uploads/{{ d.img_name }}" 
+                                     width="60" height="60" 
+                                     onerror="this.src='https://via.placeholder.com/60?text=No+Img'">
                             </a>
                         </td>
-                        <td>{{ d.lat }}, {{ d.lng }}</td>
-                        <td><span class="badge">{{ d.accuracy }} %</span></td>
                         <td>
-                            <strong>{{ d.surveyor }}</strong><br>
-                            <small style="color: #888;">{{ d.timestamp }}</small>
+                            {% if d.prediction == 'Zanthoxylum' or d.prediction == 'มะแขว่น' %}
+                                <span class="badge-ai bg-zantho">✅ มะแขว่น</span>
+                            {% else %}
+                                <span class="badge-ai bg-other">{{ d.prediction }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-weight: bold; color: #2e7d32;">{{ "%.2f"|format(d.confidence|float) }}%</td>
+                        <td>
+                            <code style="font-size: 11px;">{{ "%.5f"|format(d.lat|float) }},<br>{{ "%.5f"|format(d.lng|float) }}</code>
                         </td>
                         <td>
+                            <strong>{{ d.surveyor }}</strong><br>
+                            <small style="color: #666;">{{ d.timestamp }}</small>
+                        </td>
+                        <td>
+                            <a href="/dashboard?lat={{ d.lat }}&lng={{ d.lng }}" class="btn btn-map">📍 ดูแผนที่</a>
                             {% if role == 'admin' %}
-                                <button class="btn btn-del">🗑️ ลบ</button>
-                                <button class="btn btn-view">✏️ แก้ไข</button>
-                            {% else %}
-                                <button class="btn btn-view">🔍 รายละเอียด</button>
+                                <button class="btn btn-del" onclick="deleteData('{{ d.id }}')">🗑️ ลบ</button>
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
-                    {% if not data %}
-                    <tr>
-                        <td colspan="5" style="text-align:center; color:#999; padding:50px;">ยังไม่มีข้อมูลการสำรวจในระบบ</td>
-                    </tr>
-                    {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            var table = $('#makhaenTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fa-solid fa-file-excel"></i> Export Excel',
+                        className: 'btn btn-excel',
+                        title: 'รายงานการสำรวจมะแขว่น_' + new Date().toLocaleDateString()
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: '<i class="fa-solid fa-file-csv"></i> Export CSV',
+                        className: 'btn btn-csv',
+                        title: 'Makhaen_Data_Log'
+                    }
+                ],
+                language: {
+                    search: "🔍 ค้นหา:",
+                    lengthMenu: "แสดง _MENU_ รายการ",
+                    info: "แสดงลำดับที่ _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการ",
+                    paginate: { next: "ถัดไป", previous: "ก่อนหน้า" }
+                },
+                responsive: true,
+                order: [[4, "desc"]] // เรียงตามเวลาล่าสุด
+            });
+
+            window.deleteData = function(id) {
+                Swal.fire({
+                    title: 'ยืนยันการลบ?',
+                    text: "ข้อมูลและรูปภาพจะถูกลบออกจากระบบอย่างถาวร!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ใช่, ลบเลย!',
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('/api/delete/' + id, { method: 'DELETE' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.status === 'success') {
+                                Swal.fire('ลบสำเร็จ!', 'ข้อมูลถูกลบเรียบร้อย', 'success');
+                                table.row('#row-' + id).remove().draw(false);
+                            } else {
+                                Swal.fire('ผิดพลาด!', data.message, 'error');
+                            }
+                        })
+                        .catch(err => Swal.fire('ผิดพลาด!', 'การเชื่อมต่อล้มเหลว', 'error'));
+                    }
+                })
+            }
+        });
+    </script>
 </body>
 </html>
