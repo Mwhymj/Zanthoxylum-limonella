@@ -23,6 +23,7 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
+    # 1. ตารางเก็บข้อมูลการสำรวจ
     conn.execute('''
         CREATE TABLE IF NOT EXISTS surveys (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,6 +38,7 @@ def init_db():
             status TEXT DEFAULT 'completed'
         )
     ''')
+    # 2. ตารางผู้ใช้งาน
     conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,6 +47,7 @@ def init_db():
             role TEXT DEFAULT 'user'
         )
     ''')
+    # 3. ตารางผู้เข้าชมออนไลน์
     conn.execute('''
         CREATE TABLE IF NOT EXISTS visitors (
             session_id TEXT PRIMARY KEY,
@@ -52,13 +55,16 @@ def init_db():
         )
     ''')
     
+    # ตรวจสอบ Column role
     try:
         conn.execute("SELECT role FROM users LIMIT 1")
     except sqlite3.OperationalError:
         conn.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'")
     
+    # บังคับสร้าง Admin และ User เริ่มต้น
     conn.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)", ('admin', '9999', 'admin'))
     conn.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)", ('user01', '8888', 'user'))
+    
     conn.commit()
     conn.close()
 
@@ -75,7 +81,7 @@ def update_visitor():
     except: pass
     finally: conn.close()
 
-# --- Routes ---
+# --- Routes หลัก ---
 
 @app.route('/')
 def index():
@@ -86,7 +92,11 @@ def index():
         total_data = conn.execute('SELECT COUNT(id) FROM surveys').fetchone()[0]
         total_users = conn.execute('SELECT COUNT(id) FROM users').fetchone()[0]
     finally: conn.close()
-    return render_template('index.html', total_images=total_data, total_markers=total_data, total_users=total_users, online_users=max(1, online_now))
+    return render_template('index.html', 
+                           total_images=total_data, 
+                           total_markers=total_data, 
+                           total_users=total_users, 
+                           online_users=max(1, online_now))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -113,24 +123,56 @@ def dashboard():
     conn = get_db_connection()
     data = conn.execute('SELECT * FROM surveys ORDER BY timestamp DESC').fetchall()
     conn.close()
-    return render_template('dashboard.html', role=session.get('role', 'GUEST'), user=session.get('username', 'ผู้เยี่ยมชม'), data=data, is_guest=is_guest)
+    return render_template('dashboard.html', 
+                           role=session.get('role', 'GUEST'), 
+                           user=session.get('username', 'ผู้เยี่ยมชม'), 
+                           data=data, 
+                           is_guest=is_guest)
+
+@app.route('/archive')
+def archive():
+    """หน้าคลังข้อมูลทั้งหมดสำหรับ User และ Admin"""
+    conn = get_db_connection()
+    data = conn.execute('SELECT * FROM surveys ORDER BY timestamp DESC').fetchall()
+    conn.close()
+    return render_template('archive.html', data=data)
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
 
-# --- API (แก้ไขเพื่อรองรับบอร์ด) ---
+# --- Admin Routes ---
+
+@app.route('/admin/reports')
+def admin_reports():
+    """หน้ารายงานปัญหาหรือตรวจสอบข้อมูลสำรวจทั้งหมดสำหรับ Admin"""
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    reports = conn.execute('SELECT * FROM surveys ORDER BY timestamp DESC').fetchall()
+    conn.close()
+    return render_template('admin_reports.html', reports=reports)
+
+@app.route('/admin/users')
+def admin_users():
+    """หน้าจัดการบัญชีผู้ใช้สำหรับ Admin"""
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    users = conn.execute('SELECT id, username, role FROM users').fetchall()
+    conn.close()
+    return render_template('admin_users.html', users=users)
+
+# --- API ---
 
 @app.route('/api/upload', methods=['POST'])
 def upload():
-    # ปลดล็อก 403: อนุญาตให้บอร์ดส่งข้อมูลได้โดยไม่ต้องเช็ค Login ใน Session
+    """API สำหรับรับข้อมูลจากบอร์ด Raspberry Pi (ไม่ต้อง Login)"""
     try:
         img = request.files.get('image')
         lat = request.form.get('lat')
         lng = request.form.get('lng')
-        
-        # ถ้าไม่ได้ Login ให้ใช้ชื่อ 'Hardware_Box'
         surveyor = session.get('username', 'Hardware_Box')
         
         if not img or not lat or not lng:
@@ -147,7 +189,7 @@ def upload():
         ''', (filename, lat, lng, 
               request.form.get('accuracy', 0), 
               surveyor, 
-              request.form.get('prediction', 'Unknown'), 
+              request.form.get('prediction', 'มะแขว่น'), 
               request.form.get('confidence', 0.0)))
         conn.commit()
         conn.close()
@@ -169,4 +211,5 @@ def delete_data(id):
     return jsonify({"status": "error", "message": "No permission"}), 403
 
 if __name__ == '__main__':
+    # สำหรับ Render ต้องใช้ host='0.0.0.0'
     app.run(debug=True, host='0.0.0.0', port=5000)
