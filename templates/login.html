@@ -1,22 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <title>Login - ระบบคัดแยกมะแขว่น</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #e8f5e9; font-family: sans-serif; }
-        .box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 300px; }
-        input { width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #2e7d32; color: white; border: none; cursor: pointer; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f1f8e9; font-family: 'Kanit', sans-serif; margin: 0; }
+        .box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        h2 { color: #2e7d32; margin-bottom: 25px; }
+        
+        .input-group { position: relative; margin-bottom: 15px; text-align: left; }
+        input { width: 100%; padding: 12px; padding-right: 40px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input:focus { border-color: #2e7d32; box-shadow: 0 0 5px rgba(46,125,50,0.2); }
+        
+        .toggle-password { position: absolute; right: 12px; top: 12px; cursor: pointer; color: #666; }
+        
+        button { width: 100%; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #1b5e20; }
+
+        .links { margin-top: 20px; font-size: 14px; }
+        .links a { color: #2e7d32; text-decoration: none; margin: 0 5px; }
+        .links a:hover { text-decoration: underline; }
+        
+        /* สไตล์เพิ่มเติมสำหรับโน้ตกันลืม */
+        .hint { font-size: 11px; color: #aaa; margin-top: 10px; font-family: 'Sarabun'; }
     </style>
 </head>
 <body>
+
     <div class="box">
-        <h2>Login</h2>
-        <form method="POST">
-            <input type="text" name="username" placeholder="Username (admin หรือ user)" required>
-            <input type="password" name="password" placeholder="Password (1234)" required>
+        <h2>เข้าสู่ระบบ</h2>
+        
+        <form id="loginForm" method="POST">
+            <div class="input-group">
+                <input type="text" name="username" placeholder="ชื่อผู้ใช้งาน" required>
+            </div>
+            
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="รหัสผ่าน" required>
+                <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
+            </div>
+            
             <button type="submit">เข้าสู่ระบบ</button>
         </form>
+
+        <div class="links">
+            <a href="/">กลับหน้าหลัก</a> | <a href="#">สมัครบัญชีใหม่</a>
+        </div>
+        
+        <div class="hint">แอดมินทดสอบ: admin / 9999</div>
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById("password");
+            const toggleIcon = document.querySelector(".toggle-password");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+
+        // รับค่า Error จาก Flask
+        const loginError = "{{ 'true' if error else 'false' }}";
+
+        if (loginError === 'true') {
+            Swal.fire({
+                icon: 'error',
+                title: 'เข้าสู่ระบบไม่สำเร็จ',
+                text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!',
+                confirmButtonColor: '#2e7d32'
+            });
+        }
+    </script>
 </body>
 </html>
