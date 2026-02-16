@@ -49,7 +49,7 @@
                     </td>
                     <td><strong>{{ report.surveyor }}</strong></td>
                     <td>{{ report.prediction }}</td>
-                    <td>{{ (report.confidence * 100)|round(2) }}%</td>
+                    <td>{{ (report.confidence 100)|round(2) }}%</td>
                     <td><small>{{ report.lat }}, {{ report.lng }}</small></td>
                     <td>{{ report.timestamp }}</td>
                     <td><span class="badge">{{ report.status }}</span></td>
@@ -80,4 +80,5 @@
         }
     </script>
 </body>
+
 </html>
