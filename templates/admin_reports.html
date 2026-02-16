@@ -3,82 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตรวจสอบการรายงานปัญหา - Admin</title>
+    <title>ระบบมะแขว่น - แผนที่พิกัดสำรวจ</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&family=Sarabun:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        body { font-family: 'Kanit', sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px; }
-        h2 { color: #1b5e20; margin: 0; display: flex; align-items: center; gap: 10px; }
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: center; }
-        th { background-color: #2e7d32; color: white; font-weight: normal; }
-        tr:hover { background-color: #f9f9f9; }
-        .img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid #ddd; }
-        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; color: white; background: #4caf50; }
-        .btn-back { text-decoration: none; color: #666; font-size: 14px; padding: 8px 15px; border-radius: 5px; background: #eee; }
-        .btn-delete { color: #d32f2f; border: none; background: none; cursor: pointer; font-size: 18px; transition: 0.2s; }
-        .btn-delete:hover { color: #ff1744; transform: scale(1.1); }
+        :root { --primary: #1b5e20; --accent: #ffeb3b; --bg: #f4f7f6; }
+        body { display: flex; margin: 0; font-family: 'Kanit', sans-serif; background: var(--bg); overflow: hidden; }
+        
+        /* Sidebar Navigation */
+        .sidebar { width: 260px; background: var(--primary); color: white; padding: 20px; min-height: 100vh; position: fixed; z-index: 1000; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        .sidebar h3 { margin: 0 0 5px 0; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        .sidebar p { font-size: 13px; margin-bottom: 10px; opacity: 0.9; font-family: 'Sarabun'; line-height: 1.4; }
+        
+        .nav-menu { list-style: none; padding: 0; flex-grow: 1; margin: 0; }
+        .nav-menu li { margin-bottom: 8px; }
+        .nav-menu a { color: white; text-decoration: none; display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; transition: 0.3s; font-size: 14px; cursor: pointer; }
+        .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.15); font-weight: bold; }
+        .nav-menu i { width: 25px; font-size: 18px; }
+
+        /* ปรับปรุงปุ่มส่งรายงานให้ขยับขึ้นและเด่นเหมือนภาพที่ 2 */
+        .btn-report { 
+            background: var(--accent) !important; 
+            color: #1b5e20 !important; 
+            font-weight: bold !important; 
+            margin-top: 5px !important;    /* ขยับขึ้นหาข้อมูลผู้ใช้ */
+            margin-bottom: 20px !important; 
+            padding: 14px 15px !important;  
+            justify-content: center !important; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+            border-radius: 10px !important;
+        }
+        .btn-report:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        /* Main Content & Map */
+        .main { flex-grow: 1; margin-left: 260px; height: 100vh; width: calc(100% - 260px); position: relative; }
+        #map { height: 100%; width: 100%; }
+        
+        /* Modal & UI อื่นๆ */
+        .modal { display: none; position: fixed; z-index: 2001; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 50px auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; position: relative; color: #333; }
+        .logout-container { margin-top: auto; padding-top: 20px; }
+        .logout-btn { color: #ffcdd2; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 1px solid rgba(255,205,210,0.2); border-radius: 8px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2><i class="fas fa-clipboard-list"></i> รายงานการสำรวจทั้งหมด</h2>
-            <a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าแดชบอร์ด</a>
-        </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>รูปภาพ</th>
-                    <th>ผู้สำรวจ</th>
-                    <th>ผลทำนาย</th>
-                    <th>ความมั่นใจ</th>
-                    <th>พิกัด (Lat, Lng)</th>
-                    <th>วันที่-เวลา</th>
-                    <th>สถานะ</th>
-                    <th>จัดการ</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in reports %}
-                <tr>
-                    <td>
-                        <img src="{{ url_for('static', filename='uploads/' + report.img_name) }}" class="img-preview" onclick="window.open(this.src)" title="คลิกเพื่อดูรูปใหญ่">
-                    </td>
-                    <td><strong>{{ report.surveyor }}</strong></td>
-                    <td>{{ report.prediction }}</td>
-                    <td>{{ (report.confidence 100)|round(2) }}%</td>
-                    <td><small>{{ report.lat }}, {{ report.lng }}</small></td>
-                    <td>{{ report.timestamp }}</td>
-                    <td><span class="badge">{{ report.status }}</span></td>
-                    <td>
-                        <button onclick="deleteReport({{ report.id }})" class="btn-delete">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="sidebar">
+        <h3><i class="fa-solid fa-leaf"></i> ระบบมะแขว่น</h3>
+        <p>ผู้ใช้: <b>{{ session.get('username', 'ผู้เยี่ยมชม') }}</b><br>
+           สิทธิ์: <span style="color: var(--accent);">{{ session.get('role', 'GUEST').upper() }}</span>
+        </p>
+        <hr style="opacity: 0.1; margin-bottom: 15px;">
+        
+        <ul class="nav-menu">
+            {% if session.get('user_id') %}
+            <li><a onclick="openModal()" class="btn-report"><i class="fa-solid fa-camera"></i> ส่งรายงานพิกัด</a></li>
+            {% endif %}
+
+            <li><a href="/dashboard" class="active"><i class="fa-solid fa-map-location-dot"></i> แผนที่พิกัดสำรวจ</a></li>
+            
+            {% if session.get('role') == 'admin' %}
+                <li><a href="/admin/reports"><i class="fa-solid fa-database"></i> คลังข้อมูลทั้งหมด</a></li>
+            {% elif session.get('user_id') %}
+                <li><a href="/admin/reports"><i class="fa-solid fa-folder-open"></i> คลังข้อมูลของฉัน</a></li>
+            {% endif %}
+            
+            <li><a href="/"><i class="fa-solid fa-house"></i> กลับหน้าหลัก</a></li>
+
+            {% if session.get('role') == 'admin' %}
+            <li style="margin-top: 20px; margin-bottom: 5px; padding-left: 15px; color: #81c784; font-size: 11px; font-weight: bold;">ADMIN PANEL</li>
+            <li><a href="/admin/users"><i class="fa-solid fa-users-gear"></i> จัดการสมาชิก</a></li>
+            <li><a href="/admin/view_issues"><i class="fa-solid fa-clipboard-list"></i> รายงานปัญหา</a></li>
+            {% endif %}
+        </ul>
+
+        <div class="logout-container">
+            <a href="/logout" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> 
+                {% if not session.get('user_id') %}กลับหน้าหลัก{% else %}ออกจากระบบ{% endif %}
+            </a>
+        </div>
     </div>
 
+    <div class="main">
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        function deleteReport(id) {
-            if(confirm('คุณแน่ใจหรือไม่ที่จะลบรายงานนี้? ข้อมูลจะหายไปถาวร')) {
-                fetch(`/api/delete/${id}`, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.status === 'success') {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                });
-            }
-        }
+        // ... (โค้ด JavaScript เดิมของคุณ) ...
     </script>
 </body>
-
 </html>
