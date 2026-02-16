@@ -3,44 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตรวจสอบการรายงานปัญหา - Admin</title>
+    <title>คลังข้อมูลการสำรวจ - Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1b5e20; --secondary: #2e7d32; --danger: #d32f2f; --bg: #f0f2f5; }
+        :root { --primary: #1b5e20; --secondary: #2e7d32; --accent: #ffeb3b; --danger: #d32f2f; --bg: #f0f2f5; }
         body { font-family: 'Kanit', sans-serif; background: var(--bg); padding: 20px; margin: 0; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px; }
-        h2 { color: var(--primary); margin: 0; display: flex; align-items: center; gap: 10px; }
+        .container { max-width: 1250px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; min-width: 900px; }
-        th, td { padding: 15px 10px; border: 1px solid #eee; text-align: center; }
-        th { background-color: var(--secondary); color: white; font-weight: 500; }
-        tr:hover { background-color: #f9f9f9; }
+        /* Header Section */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 25px; }
+        h2 { color: var(--primary); margin: 0; display: flex; align-items: center; gap: 12px; font-size: 24px; }
         
-        .img-preview { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid #ddd; transition: 0.2s; }
-        .img-preview:hover { transform: scale(1.1); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        /* Table Styling */
+        .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; min-width: 1000px; }
+        th, td { padding: 16px 12px; border-bottom: 1px solid #eee; text-align: center; }
+        th { background-color: var(--secondary); color: white; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background-color: #f9fdf9; }
         
-        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; color: white; background: var(--secondary); }
-        .badge-confidence { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
+        /* Image Preview */
+        .img-preview { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: 0.3s; }
+        .img-preview:hover { transform: scale(1.15); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         
-        .btn-back { text-decoration: none; color: #666; font-size: 14px; padding: 10px 18px; border-radius: 8px; background: #eee; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
-        .btn-back:hover { background: #ddd; }
+        /* Status & Badges */
+        .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; color: white; background: var(--primary); font-weight: 400; }
+        .badge-confidence { background: #e8f5e9; color: #2e7d32; padding: 5px 10px; border-radius: 6px; font-weight: bold; border: 1px solid #c8e6c9; }
         
-        .btn-delete { color: var(--danger); border: none; background: none; cursor: pointer; font-size: 18px; transition: 0.2s; padding: 10px; }
-        .btn-delete:hover { color: #ff1744; transform: scale(1.2); }
+        /* Buttons */
+        .btn-back { text-decoration: none; color: #555; font-size: 14px; padding: 10px 20px; border-radius: 10px; background: #fff; border: 1px solid #ddd; transition: 0.3s; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        .btn-back:hover { background: #f5f5f5; border-color: #bbb; transform: translateX(-5px); }
         
-        .empty-state { padding: 40px; text-align: center; color: #999; }
+        .btn-delete { color: var(--danger); border: none; background: #fff5f5; cursor: pointer; font-size: 18px; transition: 0.3s; padding: 10px; border-radius: 8px; }
+        .btn-delete:hover { background: var(--danger); color: white; transform: rotate(10deg); }
+        
+        /* ขยับปุ่มจัดการขึ้นมาอีกนิด */
+        .action-cell { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: -2px; }
+
+        .empty-state { padding: 60px; text-align: center; color: #bbb; }
+        .empty-state i { font-size: 50px; margin-bottom: 15px; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2><i class="fas fa-clipboard-list"></i> รายงานการสำรวจทั้งหมด</h2>
-        <a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าแดชบอร์ด</a>
+        <h2><i class="fas fa-database"></i> รายงานการสำรวจทั้งหมด</h2>
+        <a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าแผนที่</a>
     </div>
 
     <div class="table-responsive">
@@ -48,11 +58,11 @@
             <thead>
                 <tr>
                     <th>รูปภาพ</th>
-                    <th>ผู้สำรวจ</th>
-                    <th>ผลทำนาย</th>
-                    <th>ความมั่นใจ</th>
-                    <th>พิกัด (Lat, Lng)</th>
-                    <th>วันที่-เวลา</th>
+                    <th>ชื่อผู้สำรวจ</th>
+                    <th>AI ทำนายผล</th>
+                    <th>ความมั่นใจ (%)</th>
+                    <th>ตำแหน่ง (Lat, Lng)</th>
+                    <th>วันที่บันทึก</th>
                     <th>สถานะ</th>
                     <th>จัดการ</th>
                 </tr>
@@ -66,40 +76,47 @@
                                 <img src="{{ url_for('static', filename='uploads/' + report.img_name) }}" 
                                      class="img-preview" onclick="window.open(this.src)" title="คลิกเพื่อดูรูปใหญ่">
                             {% else %}
-                                <div style="font-size: 20px; color: #ccc;"><i class="fas fa-image"></i></div>
+                                <div style="font-size: 24px; color: #ddd;"><i class="fas fa-image-slash"></i></div>
                             {% endif %}
                         </td>
-                        <td><strong>{{ report.surveyor if report.surveyor else 'ไม่ระบุชื่อ' }}</strong></td>
-                        <td>{{ report.prediction if report.prediction else 'รอดำเนินการ' }}</td>
+                        <td><strong>{{ report.surveyor if report.surveyor else 'Guest' }}</strong></td>
+                        <td>
+                            <span style="color: var(--primary); font-weight: 500;">
+                                {{ report.prediction if report.prediction else 'ไม่ทราบชนิด' }}
+                            </span>
+                        </td>
                         <td>
                             <span class="badge-confidence">
+                                {# แก้ไขค่าความมั่นใจ ป้องกัน Error 500 #}
                                 {% if report.confidence is not none %}
                                     {{ (report.confidence * 100)|round(2) }}%
                                 {% else %}
-                                    0%
+                                    0.00%
                                 {% endif %}
                             </span>
                         </td>
                         <td>
-                            <small style="color: #666;">
-                                {{ "%.4f"|format(report.lat|float) if report.lat else '0.0000' }}, 
-                                {{ "%.4f"|format(report.lng|float) if report.lng else '0.0000' }}
+                            <small style="color: #777;">
+                                {{ "%.5f"|format(report.lat|float) if report.lat else '0.00000' }}<br>
+                                {{ "%.5f"|format(report.lng|float) if report.lng else '0.00000' }}
                             </small>
                         </td>
                         <td><small>{{ report.timestamp if report.timestamp else '-' }}</small></td>
-                        <td><span class="badge">{{ report.status if report.status else 'บันทึกแล้ว' }}</span></td>
+                        <td><span class="badge">{{ report.status if report.status else 'สำเร็จ' }}</span></td>
                         <td>
-                            <button onclick="deleteReport('{{ report.id }}')" class="btn-delete" title="ลบข้อมูล">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                            <div class="action-cell">
+                                <button onclick="deleteReport('{{ report.id }}')" class="btn-delete" title="ลบข้อมูล">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 {% else %}
                     <tr>
                         <td colspan="8" class="empty-state">
-                            <i class="fas fa-folder-open" style="font-size: 40px; margin-bottom: 10px;"></i>
-                            <p>ยังไม่มีข้อมูลรายงานในขณะนี้</p>
+                            <i class="fas fa-inbox"></i>
+                            <p>ไม่มีข้อมูลรายงานในระบบ</p>
                         </td>
                     </tr>
                 {% endif %}
@@ -110,7 +127,7 @@
 
 <script>
     async function deleteReport(id) {
-        if(confirm('⚠️ คุณแน่ใจหรือไม่ที่จะลบรายงานนี้?\nข้อมูลและไฟล์รูปภาพจะถูกลบออกจากระบบถาวร')) {
+        if(confirm('⚠️ ยันยืนการลบข้อมูล?\nเมื่อลบแล้วจะไม่สามารถกู้คืนพิกัดและรูปภาพได้')) {
             try {
                 const response = await fetch(`/api/delete/${id}`, { 
                     method: 'POST',
@@ -121,11 +138,10 @@
                 if(data.status === 'success') {
                     location.reload();
                 } else {
-                    alert('เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถลบข้อมูลได้'));
+                    alert('Error: ' + (data.message || 'ไม่สามารถลบข้อมูลได้'));
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+                alert('เซิร์ฟเวอร์ขัดข้อง ไม่สามารถลบข้อมูลได้ในขณะนี้');
             }
         }
     }
