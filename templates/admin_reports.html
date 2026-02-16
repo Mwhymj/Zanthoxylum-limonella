@@ -12,37 +12,26 @@
         
         .container { max-width: 1250px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
-        /* Header Section */
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 25px; }
         h2 { color: var(--primary); margin: 0; display: flex; align-items: center; gap: 12px; font-size: 24px; }
         
-        /* Table Styling */
         .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; min-width: 1000px; }
         th, td { padding: 16px 12px; border-bottom: 1px solid #eee; text-align: center; }
-        th { background-color: var(--secondary); color: white; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        th { background-color: var(--secondary); color: white; font-weight: 500; text-transform: uppercase; }
         tr:hover { background-color: #f9fdf9; }
         
-        /* Image Preview */
         .img-preview { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: 0.3s; }
-        .img-preview:hover { transform: scale(1.15); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .img-preview:hover { transform: scale(1.15); }
         
-        /* Status & Badges */
-        .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; color: white; background: var(--primary); font-weight: 400; }
+        .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; color: white; background: var(--primary); }
         .badge-confidence { background: #e8f5e9; color: #2e7d32; padding: 5px 10px; border-radius: 6px; font-weight: bold; border: 1px solid #c8e6c9; }
         
-        /* Buttons */
         .btn-back { text-decoration: none; color: #555; font-size: 14px; padding: 10px 20px; border-radius: 10px; background: #fff; border: 1px solid #ddd; transition: 0.3s; display: flex; align-items: center; gap: 8px; font-weight: 500; }
-        .btn-back:hover { background: #f5f5f5; border-color: #bbb; transform: translateX(-5px); }
+        .btn-back:hover { background: #f5f5f5; transform: translateX(-5px); }
         
         .btn-delete { color: var(--danger); border: none; background: #fff5f5; cursor: pointer; font-size: 18px; transition: 0.3s; padding: 10px; border-radius: 8px; }
-        .btn-delete:hover { background: var(--danger); color: white; transform: rotate(10deg); }
-        
-        /* ขยับปุ่มจัดการขึ้นมาอีกนิด */
-        .action-cell { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: -2px; }
-
-        .empty-state { padding: 60px; text-align: center; color: #bbb; }
-        .empty-state i { font-size: 50px; margin-bottom: 15px; display: block; }
+        .btn-delete:hover { background: var(--danger); color: white; }
     </style>
 </head>
 <body>
@@ -50,7 +39,7 @@
 <div class="container">
     <div class="header">
         <h2><i class="fas fa-database"></i> รายงานการสำรวจทั้งหมด</h2>
-        <a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าแผนที่</a>
+        <a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าแดชบอร์ด</a>
     </div>
 
     <div class="table-responsive">
@@ -58,11 +47,11 @@
             <thead>
                 <tr>
                     <th>รูปภาพ</th>
-                    <th>ชื่อผู้สำรวจ</th>
-                    <th>AI ทำนายผล</th>
+                    <th>ผู้สำรวจ</th>
+                    <th>ผลทำนาย</th>
                     <th>ความมั่นใจ (%)</th>
-                    <th>ตำแหน่ง (Lat, Lng)</th>
-                    <th>วันที่บันทึก</th>
+                    <th>พิกัด (Lat, Lng)</th>
+                    <th>วันที่-เวลา</th>
                     <th>สถานะ</th>
                     <th>จัดการ</th>
                 </tr>
@@ -79,45 +68,40 @@
                                 <div style="font-size: 24px; color: #ddd;"><i class="fas fa-image-slash"></i></div>
                             {% endif %}
                         </td>
-                        <td><strong>{{ report.surveyor if report.surveyor else 'Guest' }}</strong></td>
-                        <td>
-                            <span style="color: var(--primary); font-weight: 500;">
-                                {{ report.prediction if report.prediction else 'ไม่ทราบชนิด' }}
-                            </span>
-                        </td>
+                        <td><strong>{{ report.surveyor if report.surveyor else 'ไม่ระบุ' }}</strong></td>
+                        <td>{{ report.prediction if report.prediction else 'ไม่มีข้อมูล' }}</td>
                         <td>
                             <span class="badge-confidence">
-                                {# แก้ไขค่าความมั่นใจ ป้องกัน Error 500 #}
+                                {# แก้ไขการคำนวณความมั่นใจไม่ให้เกิน 100% #}
                                 {% if report.confidence is not none %}
-                                    {{ (report.confidence * 100)|round(2) }}%
+                                    {% if report.confidence > 1 %}
+                                        {{ report.confidence|round(2) }}%
+                                    {% else %}
+                                        {{ (report.confidence * 100)|round(2) }}%
+                                    {% endif %}
                                 {% else %}
                                     0.00%
                                 {% endif %}
                             </span>
                         </td>
                         <td>
-                            <small style="color: #777;">
-                                {{ "%.5f"|format(report.lat|float) if report.lat else '0.00000' }}<br>
-                                {{ "%.5f"|format(report.lng|float) if report.lng else '0.00000' }}
+                            <small style="color: #666;">
+                                {{ "%.5f"|format(report.lat|float) if report.lat else '0.00' }}, 
+                                {{ "%.5f"|format(report.lng|float) if report.lng else '0.00' }}
                             </small>
                         </td>
                         <td><small>{{ report.timestamp if report.timestamp else '-' }}</small></td>
-                        <td><span class="badge">{{ report.status if report.status else 'สำเร็จ' }}</span></td>
+                        <td><span class="badge">{{ report.status if report.status else 'completed' }}</span></td>
                         <td>
-                            <div class="action-cell">
-                                <button onclick="deleteReport('{{ report.id }}')" class="btn-delete" title="ลบข้อมูล">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
+                            <button onclick="deleteReport('{{ report.id }}')" class="btn-delete" title="ลบข้อมูล">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="8" class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <p>ไม่มีข้อมูลรายงานในระบบ</p>
-                        </td>
+                        <td colspan="8" style="padding: 50px; color: #999;">ยังไม่มีข้อมูลรายงานในขณะนี้</td>
                     </tr>
                 {% endif %}
             </tbody>
@@ -127,21 +111,17 @@
 
 <script>
     async function deleteReport(id) {
-        if(confirm('⚠️ ยันยืนการลบข้อมูล?\nเมื่อลบแล้วจะไม่สามารถกู้คืนพิกัดและรูปภาพได้')) {
+        if(confirm('⚠️ ยืนยันการลบรายงานนี้ถาวร?')) {
             try {
-                const response = await fetch(`/api/delete/${id}`, { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
+                const response = await fetch(`/api/delete/${id}`, { method: 'POST' });
                 const data = await response.json();
-                
                 if(data.status === 'success') {
                     location.reload();
                 } else {
-                    alert('Error: ' + (data.message || 'ไม่สามารถลบข้อมูลได้'));
+                    alert('Error: ' + data.message);
                 }
-            } catch (error) {
-                alert('เซิร์ฟเวอร์ขัดข้อง ไม่สามารถลบข้อมูลได้ในขณะนี้');
+            } catch (err) {
+                alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
             }
         }
     }
