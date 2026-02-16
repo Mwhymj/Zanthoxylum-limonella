@@ -1,84 +1,135 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ตรวจสอบการรายงานปัญหา - Admin</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<style>
-        body { font-family: 'Kanit', sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตรวจสอบการรายงานปัญหา - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1b5e20; --secondary: #2e7d32; --danger: #d32f2f; --bg: #f0f2f5; }
+        body { font-family: 'Kanit', sans-serif; background: var(--bg); padding: 20px; margin: 0; }
         .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px; }
-        h2 { color: #1b5e20; margin: 0; display: flex; align-items: center; gap: 10px; }
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: center; }
-        th { background-color: #2e7d32; color: white; font-weight: normal; }
+        h2 { color: var(--primary); margin: 0; display: flex; align-items: center; gap: 10px; }
+        
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; min-width: 900px; }
+        th, td { padding: 15px 10px; border: 1px solid #eee; text-align: center; }
+        th { background-color: var(--secondary); color: white; font-weight: 500; }
         tr:hover { background-color: #f9f9f9; }
-        .img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid #ddd; }
-        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; color: white; background: #4caf50; }
-        .btn-back { text-decoration: none; color: #666; font-size: 14px; padding: 8px 15px; border-radius: 5px; background: #eee; }
-        .btn-delete { color: #d32f2f; border: none; background: none; cursor: pointer; font-size: 18px; transition: 0.2s; }
-        .btn-delete:hover { color: #ff1744; transform: scale(1.1); }
-</style>
+        
+        .img-preview { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid #ddd; transition: 0.2s; }
+        .img-preview:hover { transform: scale(1.1); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; color: white; background: var(--secondary); }
+        .badge-confidence { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
+        
+        .btn-back { text-decoration: none; color: #666; font-size: 14px; padding: 10px 18px; border-radius: 8px; background: #eee; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-back:hover { background: #ddd; }
+        
+        .btn-delete { color: var(--danger); border: none; background: none; cursor: pointer; font-size: 18px; transition: 0.2s; padding: 10px; }
+        .btn-delete:hover { color: #ff1744; transform: scale(1.2); }
+        
+        .empty-state { padding: 40px; text-align: center; color: #999; }
+    </style>
 </head>
 <body>
+
 <div class="container">
-<div class="header">
-<h2><i class="fas fa-clipboard-list"></i> รายงานการสำรวจทั้งหมด</h2>
-<a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าแดชบอร์ด</a>
-</div>
- 
+    <div class="header">
+        <h2><i class="fas fa-clipboard-list"></i> รายงานการสำรวจทั้งหมด</h2>
+        <a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าแดชบอร์ด</a>
+    </div>
+
+    <div class="table-responsive">
         <table>
-<thead>
-<tr>
-<th>รูปภาพ</th>
-<th>ผู้สำรวจ</th>
-<th>ผลทำนาย</th>
-<th>ความมั่นใจ</th>
-<th>พิกัด (Lat, Lng)</th>
-<th>วันที่-เวลา</th>
-<th>สถานะ</th>
-<th>จัดการ</th>
-</tr>
-</thead>
-<tbody>
-                {% for report in reports %}
-<tr>
-<td>
-<img src="{{ url_for('static', filename='uploads/' + report.img_name) }}" class="img-preview" onclick="window.open(this.src)" title="คลิกเพื่อดูรูปใหญ่">
-</td>
-<td><strong>{{ report.surveyor }}</strong></td>
-<td>{{ report.prediction }}</td>
-<td>{{ (report.confidence * 100)|round(2) }}%</td>
-<td><small>{{ report.lat }}, {{ report.lng }}</small></td>
-<td>{{ report.timestamp }}</td>
-<td><span class="badge">{{ report.status }}</span></td>
-<td>
-<button onclick="deleteReport({{ report.id }})" class="btn-delete">
-<i class="fas fa-trash-alt"></i>
-</button>
-</td>
-</tr>
-                {% endfor %}
-</tbody>
-</table>
+            <thead>
+                <tr>
+                    <th>รูปภาพ</th>
+                    <th>ผู้สำรวจ</th>
+                    <th>ผลทำนาย</th>
+                    <th>ความมั่นใจ</th>
+                    <th>พิกัด (Lat, Lng)</th>
+                    <th>วันที่-เวลา</th>
+                    <th>สถานะ</th>
+                    <th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if reports %}
+                    {% for report in reports %}
+                    <tr>
+                        <td>
+                            {% if report.img_name %}
+                                <img src="{{ url_for('static', filename='uploads/' + report.img_name) }}" 
+                                     class="img-preview" onclick="window.open(this.src)" title="คลิกเพื่อดูรูปใหญ่">
+                            {% else %}
+                                <div style="font-size: 20px; color: #ccc;"><i class="fas fa-image"></i></div>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ report.surveyor if report.surveyor else 'ไม่ระบุชื่อ' }}</strong></td>
+                        <td>{{ report.prediction if report.prediction else 'รอดำเนินการ' }}</td>
+                        <td>
+                            <span class="badge-confidence">
+                                {% if report.confidence is not none %}
+                                    {{ (report.confidence * 100)|round(2) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <small style="color: #666;">
+                                {{ "%.4f"|format(report.lat|float) if report.lat else '0.0000' }}, 
+                                {{ "%.4f"|format(report.lng|float) if report.lng else '0.0000' }}
+                            </small>
+                        </td>
+                        <td><small>{{ report.timestamp if report.timestamp else '-' }}</small></td>
+                        <td><span class="badge">{{ report.status if report.status else 'บันทึกแล้ว' }}</span></td>
+                        <td>
+                            <button onclick="deleteReport('{{ report.id }}')" class="btn-delete" title="ลบข้อมูล">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-folder-open" style="font-size: 40px; margin-bottom: 10px;"></i>
+                            <p>ยังไม่มีข้อมูลรายงานในขณะนี้</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 </div>
- 
-    <script>
-        function deleteReport(id) {
-            if(confirm('คุณแน่ใจหรือไม่ที่จะลบรายงานนี้? ข้อมูลจะหายไปถาวร')) {
-                fetch(`/api/delete/${id}`, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.status === 'success') {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
+
+<script>
+    async function deleteReport(id) {
+        if(confirm('⚠️ คุณแน่ใจหรือไม่ที่จะลบรายงานนี้?\nข้อมูลและไฟล์รูปภาพจะถูกลบออกจากระบบถาวร')) {
+            try {
+                const response = await fetch(`/api/delete/${id}`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
                 });
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถลบข้อมูลได้'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
             }
         }
+    }
 </script>
+
 </body>
- 
 </html>
